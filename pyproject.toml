@@ -1,0 +1,22 @@
+[project]
+name = "waste-classification"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10.16"
+dependencies = [
+    "ipykernel>=6.29.5",
+    "matplotlib>=3.10.0",
+    "numpy==1.24.3",
+    "opencv-python>=4.8.1.78",
+    "pillow>=11.1.0",
+    "protobuf==3.20.3",
+    "scikit-learn>=1.6.1",
+    "scipy>=1.15.2",
+    "seaborn>=0.13.2",
+    "tensorflow-hub>=0.16.1",
+    "tensorflow[and-cuda]>=2.14.1",
+    "tf-slim>=1.1.0",
+    "tqdm>=4.67.1",
+    "ultralytics>=8.3.80",
+]
