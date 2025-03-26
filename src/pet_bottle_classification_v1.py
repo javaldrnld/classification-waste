@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -15,11 +16,30 @@ from tensorflow.keras.layers import (
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-# PALITAN NALANG 'TO
-# Image dimensions
-IMG_HEIGHT = 224
-IMG_WIDTH = 224
+# Configuration
+CONFIG = {
+    "img_height": 224,
+    "img_width": 224,
+    "batch_size": 8,
+    "data_dir": '../data/raw',
+    "train_dir": '../data/train',
+    "test_dir": '../data/test',
+    "models_dir": '../models_train',
+    "test_size": 0.2,
+    "validation_split": 0.2,
+    "learning_rate": 0.001,
+    "epochs": 50,
+    "early_stopping_patience": 10,
+    "reduce_lr_patience": 5
+}
 
+# Create directory -> for train and test:
+def create_directory(directory):
+    Path(directory).mkdir(parents=True, exist_ok=True)
+
+# Train Test Split -> Memory Eater for now, but can use flow_from_directory
+def create_train_test_split(data_dir, train_dir, test_dir, test_size=0.2):
+    pass
 # Paths to the directory
 data_dir = '../data/raw'  # Main directory -> pet_bottle and unacceptable
 
@@ -179,6 +199,8 @@ def create_transfer_model():
 # Transfer Learning -> Good, just need early stopping
 model = create_transfer_model()  
 
+
+
 # Print model summary
 model.summary()
 
@@ -231,8 +253,25 @@ plt.legend(['Train', 'Validation'], loc='upper left')
 plt.tight_layout()
 plt.show()
 
+# When your model training is complete:
+
+# 1. Save in H5 format (weights + architecture + optimizer state)
+model.save('../models_train/transfer_learningv2.h5', save_format='h5')
+
+# 2. ALSO save in SavedModel format for better compatibility
+model.save('../models_train/transfer_learningv2_saved_model')
+
+# 3. Optional: save just the weights for maximum flexibility
+model.save_weights('../models_train/transfer_learningv2_weights.h5')
 # Save the model
-model.save('bottle_classifier.h5')
+model.save('bottle_classifier_overfit.h5')
+
+# Convert to tflite
+converter = tf.lite.TFLiteConverter.from_keras_model(model)
+tflite_model = converter.convert()
+
+with open("../models_train/transfer_learningv1.tflite", "wb") as f:
+    f.write(tflite_model)
 
 # Evaluate on the validation set (for hyperparameter tuning)
 validation_evaluation = model.evaluate(validation_generator)
@@ -243,6 +282,75 @@ print(f"Validation Accuracy: {validation_evaluation[1]:.4f}")
 test_evaluation = model.evaluate(test_generator)
 print(f"Test Loss: {test_evaluation[0]:.4f}")
 print(f"Test Accuracy: {test_evaluation[1]:.4f}")
+
+# new
+import os
+
+import tensorflow as tf
+from tensorflow.keras.callbacks import TensorBoard
+
+# Define TensorBoard log directory
+log_dir = "logs/fit"
+
+# Create TensorBoard callback
+tensorboard_callback = TensorBoard(log_dir=log_dir, histogram_freq=1, write_graph=True)
+
+# Add to callbacks list
+callbacks = [
+    early_stopping,
+    reduce_lr,
+    tensorboard_callback
+]
+
+# Train the model with TensorBoard
+history = model.fit(
+    train_generator,
+    steps_per_epoch=steps_per_epoch,
+    epochs=50,
+    validation_data=validation_generator,
+    validation_steps=validation_steps,
+    callbacks=callbacks
+)
+
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
+
+
+# Function to log confusion matrix to TensorBoard
+def log_confusion_matrix(model, test_generator):
+    y_true = test_generator.classes
+    y_pred = (model.predict(test_generator) > 0.5).astype("int").ravel()
+
+    cm = confusion_matrix(y_true, y_pred)
+    fig, ax = plt.subplots(figsize=(6, 5))
+    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=['Unacceptable', 'PET Bottle'], yticklabels=['Unacceptable', 'PET Bottle'])
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.title("Confusion Matrix")
+
+    # Save figure to TensorBoard
+    file_writer = tf.summary.create_file_writer(log_dir)
+    with file_writer.as_default():
+        tf.summary.image("Confusion Matrix", plot_to_image(fig), step=0)
+
+# Convert plot to TensorBoard image format
+def plot_to_image(fig):
+    import io
+
+    from PIL import Image
+
+    buf = io.BytesIO()
+    fig.savefig(buf, format='png')
+    buf.seek(0)
+    image = Image.open(buf)
+    return tf.convert_to_tensor(np.array(image))
+
+# Log confusion matrix
+log_confusion_matrix(model, test_generator)
+
+# new
 
 from sklearn.metrics import ConfusionMatrixDisplay, confusion_matrix
 
@@ -433,3 +541,82 @@ def display_gradcam(img_path, heatmap, alpha=0.4):
     plt.show()
 
 
+
+#### TFLITE
+import matplotlib.pyplot as plt
+import numpy as np
+import tensorflow as tf
+from PIL import Image
+
+
+def predict_and_display(img_path, interpreter, class_indices=None):
+    # If class_indices is not provided, use default alphabetical mapping
+    if class_indices is None:
+        class_indices = {'pet_bottle': 0, 'unacceptable': 1}
+    
+    # Create reverse mapping from index to class name
+    index_to_class = {v: k for k, v in class_indices.items()}
+    
+    # Get input details
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+    
+    # Load the image with the correct size
+    img = Image.open(img_path).resize((224, 224))
+    
+    # Convert to numpy array
+    x = np.array(img, dtype=np.float32)
+    # Normalize and add batch dimension
+    x = np.expand_dims(x, axis=0) / 255.0
+    
+    # Set the input tensor
+    interpreter.set_tensor(input_details[0]['index'], x)
+    
+    # Run inference
+    interpreter.invoke()
+    
+    # Get the prediction
+    pred_prob = interpreter.get_tensor(output_details[0]['index'])[0][0]
+    
+    # Determine predicted class
+    pred_class_idx = 1 if pred_prob > 0.5 else 0
+    pred_class_name = index_to_class[pred_class_idx]
+    
+    # Calculate confidence
+    confidence = pred_prob if pred_class_idx == 1 else 1 - pred_prob
+    
+    plt.figure(figsize=(6, 6))
+    plt.imshow(img)
+    plt.title(f"Prediction: {pred_class_name} ({confidence:.2%})\nRaw output: {pred_prob:.3f}")
+    plt.axis('off')
+    plt.show()
+    
+    return pred_class_name, confidence, pred_prob
+
+# Load the TFLite model
+interpreter = tf.lite.Interpreter(model_path="../models_train/transfer_learningv1.tflite")
+interpreter.allocate_tensors()
+
+# Test with a few examples
+test_images = [
+    "../data/new_test/IMG_0972.jpeg",
+    "../data/new_test/IMG_0973.jpeg",
+    "../data/new_test/IMG_0975.jpeg",
+    "../data/new_test/IMG_0976.jpeg",
+    "../data/new_test/IMG_0978.jpeg",
+    "../data/new_test/IMG_0979.jpeg",
+    "../data/new_test/IMG_0980.jpeg",
+    "../data/new_test/IMG_0981.jpeg",
+    "../data/new_test/IMG_0982.jpeg",
+]
+
+# Class mapping
+class_indices = {'pet_bottle': 0, 'unacceptable': 1}  # Adjust based on your actual mapping
+
+for img_path in test_images:
+    class_name, confidence, raw_output = predict_and_display(img_path, interpreter, class_indices)
+    print(f"File: {img_path.split('/')[-1]}")
+    print(f"Class: {class_name}")
+    print(f"Confidence: {confidence:.2%}")
+    print(f"Raw model output: {raw_output:.4f}")
+    print("-" * 50)
