@@ -2050,6 +2050,15 @@ wheels = [
 ]
 
 [[package]]
+name = "pybind11"
+version = "2.13.6"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/d2/c1/72b9622fcb32ff98b054f724e213c7f70d6898baa714f4516288456ceaba/pybind11-2.13.6.tar.gz", hash = "sha256:ba6af10348c12b24e92fa086b39cfba0eff619b61ac77c406167d813b096d39a", size = 218403 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/13/2f/0f24b288e2ce56f51c920137620b4434a38fd80583dbbe24fc2a1656c388/pybind11-2.13.6-py3-none-any.whl", hash = "sha256:237c41e29157b962835d356b370ededd57594a26d5894a795960f0047cb5caf5", size = 243282 },
+]
+
+[[package]]
 name = "pycparser"
 version = "2.22"
 source = { registry = "https://pypi.org/simple" }
@@ -2452,6 +2461,21 @@ wheels = [
 ]
 
 [[package]]
+name = "sounddevice"
+version = "0.5.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "cffi" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/80/2d/b04ae180312b81dbb694504bee170eada5372242e186f6298139fd3a0513/sounddevice-0.5.1.tar.gz", hash = "sha256:09ca991daeda8ce4be9ac91e15a9a81c8f81efa6b695a348c9171ea0c16cb041", size = 52896 }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/06/d1/464b5fca3decdd0cfec8c47f7b4161a0b12972453201c1bf03811f367c5e/sounddevice-0.5.1-py3-none-any.whl", hash = "sha256:e2017f182888c3f3c280d9fbac92e5dbddac024a7e3442f6e6116bd79dab8a9c", size = 32276 },
+    { url = "https://files.pythonhosted.org/packages/6f/f6/6703fe7cf3d7b7279040c792aeec6334e7305956aba4a80f23e62c8fdc44/sounddevice-0.5.1-py3-none-macosx_10_6_x86_64.macosx_10_6_universal2.whl", hash = "sha256:d16cb23d92322526a86a9490c427bf8d49e273d9ccc0bd096feecd229cde6031", size = 107916 },
+    { url = "https://files.pythonhosted.org/packages/57/a5/78a5e71f5ec0faedc54f4053775d61407bfbd7d0c18228c7f3d4252fd276/sounddevice-0.5.1-py3-none-win32.whl", hash = "sha256:d84cc6231526e7a08e89beff229c37f762baefe5e0cc2747cbe8e3a565470055", size = 312494 },
+    { url = "https://files.pythonhosted.org/packages/af/9b/15217b04f3b36d30de55fef542389d722de63f1ad81f9c72d8afc98cb6ab/sounddevice-0.5.1-py3-none-win_amd64.whl", hash = "sha256:4313b63f2076552b23ac3e0abd3bcfc0c1c6a696fc356759a13bd113c9df90f1", size = 363634 },
+]
+
+[[package]]
 name = "stack-data"
 version = "0.6.3"
 source = { registry = "https://pypi.org/simple" }
@@ -2811,6 +2835,25 @@ wheels = [
 ]
 
 [[package]]
+name = "tflite-support"
+version = "0.4.4"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "absl-py" },
+    { name = "flatbuffers" },
+    { name = "numpy" },
+    { name = "protobuf" },
+    { name = "pybind11" },
+    { name = "sounddevice" },
+]
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2f/2d/9a5a6f278765a80b3c6627e06ba09bdb5914098430c93a670be24789c15b/tflite_support-0.4.4-cp310-cp310-macosx_10_11_x86_64.whl", hash = "sha256:ac8552a94903c4bead7192c972a4c654faa8559cd8e6520955ea4028182ea61b", size = 58311614 },
+    { url = "https://files.pythonhosted.org/packages/39/37/2602fa31e308e1f38897819e5ea41e69f4b1852197cdbbb3a0e8105ffbbe/tflite_support-0.4.4-cp310-cp310-manylinux2014_x86_64.whl", hash = "sha256:1d26983d0d55b79d03906bf2dac09491582096cfb83654246ea64de9a063e1d7", size = 60809896 },
+    { url = "https://files.pythonhosted.org/packages/0e/b2/36b25514c94f7973e51861f5505357bac6b37086ed492dde8ef92bd21703/tflite_support-0.4.4-cp311-cp311-macosx_10_11_x86_64.whl", hash = "sha256:1eeb718f51011ea907852ca809d2320cd85c09f726a1b7b1d16387acd04d33c1", size = 58311811 },
+    { url = "https://files.pythonhosted.org/packages/55/16/a7dfed9f6240f34a838f8a4a35b69a4f256a0d03e2be9e1c7717a3039c6c/tflite_support-0.4.4-cp311-cp311-manylinux2014_x86_64.whl", hash = "sha256:eb6bffda7532bd0e0c95c69a4a3f1276e0434891b8139c21b71db40c713ccc98", size = 60810390 },
+]
+
+[[package]]
 name = "threadpoolctl"
 version = "3.5.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3146,6 +3189,7 @@ dependencies = [
     { name = "tensorflow-hub" },
     { name = "tf-slim" },
     { name = "tflite-runtime" },
+    { name = "tflite-support" },
     { name = "tqdm" },
     { name = "ultralytics" },
 ]
@@ -3166,6 +3210,7 @@ requires-dist = [
     { name = "tensorflow-hub", specifier = ">=0.16.1" },
     { name = "tf-slim", specifier = ">=1.1.0" },
     { name = "tflite-runtime", specifier = ">=2.14.0" },
+    { name = "tflite-support", specifier = ">=0.4.4" },
     { name = "tqdm", specifier = ">=4.67.1" },
     { name = "ultralytics", specifier = ">=8.3.80" },
 ]
