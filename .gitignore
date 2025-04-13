@@ -95,3 +95,6 @@ target/
 # exclude data from source control by default
 /data/
 /models_train/
+/results/
+/rotated_images/
+/rotated_images_pet/

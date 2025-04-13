@@ -19,14 +19,14 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tqdm import tqdm
 
-TRAIN_DIR = "../data/train"
-TEST_DIR = "../data/test"
+TRAIN_DIR = "../../data/train"
+TEST_DIR = "../../data/test"
 IMG_HEIGHT = 224
 IMG_WIDTH = 224
 BATCH_SIZE = 4
 VALIDATION_SPLIT = 0.2
 LEARNING_RATE = 0.0001
-results_dir = "/home/untitled/Documents/Coding Repository/python_journey/Capstone/waste-classification/data/hyperparameter_result/efficientnetb0"
+results_dir = "/home/untitled/Documents/Coding_Repository/python_journey/Capstone/waste-classification/results/hyperparameter_result/efficientnet_13_25"
 os.makedirs(results_dir, exist_ok=True)  # Create directory if it doesn't exist
 # load training data for visualization
 x_data, y_data = [], []
@@ -104,18 +104,67 @@ test_generator = test_datagen.flow_from_directory(
 
 # Define hyperparameter test cases
 hyperparameter_tests = [
-    {"dense_layers": [128], "dropout": [0.5], "batch_size": 4, "lr": 0.0001, "unfreeze_layers": 10, "epochs": 20},
-    {"dense_layers": [128, 64], "dropout": [0.5, 0.6], "batch_size": 4, "lr": 0.00005, "unfreeze_layers": 10, "epochs": 20},
+    # {"dense_layers": [128], "dropout": [0.5], "batch_size": 4, "lr": 0.0001, "unfreeze_layers": 10, "epochs": 20},
+    # {"dense_layers": [128, 64], "dropout": [0.5, 0.6], "batch_size": 4, "lr": 0.00005, "unfreeze_layers": 10, "epochs": 20},
+    # {"dense_layers": [256, 128], "dropout": [0.4, 0.5], "batch_size": 8, "lr": 0.0001, "unfreeze_layers": 20, "epochs": 30},
+    # {"dense_layers": [512, 256, 128], "dropout": [0.4, 0.5, 0.6], "batch_size": 16, "lr": 0.00005, "unfreeze_layers": 30, "epochs": 40},
+    # {"dense_layers": [256], "dropout": [0.4], "batch_size": 8, "lr": 0.0001, "unfreeze_layers": 15, "epochs": 25},
+    # {"dense_layers": [128, 64, 32], "dropout": [0.5, 0.6, 0.3], "batch_size": 4, "lr": 0.0001, "unfreeze_layers": 10, "epochs": 20},
+    # {"dense_layers": [64], "dropout": [0.3], "batch_size": 8, "lr": 0.0005, "unfreeze_layers": 5, "epochs": 15},
+    # {"dense_layers": [128, 64], "dropout": [0.5, 0.3], "batch_size": 8, "lr": 0.0001, "unfreeze_layers": 15, "epochs": 20},
+    # {"dense_layers": [256, 128, 64], "dropout": [0.4, 0.5, 0.6], "batch_size": 16, "lr": 0.00005, "unfreeze_layers": 20, "epochs": 30},
+    # {"dense_layers": [128], "dropout": [0.5], "batch_size": 4, "lr": 0.0001, "unfreeze_layers": 5, "epochs": 20},
+    # {"dense_layers": [128, 64], "dropout": [0.5, 0.5], "batch_size": 16, "lr": 0.0001, "unfreeze_layers": 10, "epochs": 25},
+    # {"dense_layers": [256], "dropout": [0.6], "batch_size": 32, "lr": 0.00005, "unfreeze_layers": 5, "epochs": 20},
+    # {"dense_layers": [128, 64, 32], "dropout": [0.4, 0.5, 0.5], "batch_size": 16, "lr": 0.0001, "unfreeze_layers": 15, "epochs": 30},
+    # {"dense_layers": [64], "dropout": [0.5], "batch_size": 32, "lr": 0.00007, "unfreeze_layers": 0, "epochs": 15},
+    # {"dense_layers": [128, 32], "dropout": [0.6, 0.6], "batch_size": 16, "lr": 0.0001, "unfreeze_layers": 8, "epochs": 20},
+        # Original strong configurations worth keeping
     {"dense_layers": [256, 128], "dropout": [0.4, 0.5], "batch_size": 8, "lr": 0.0001, "unfreeze_layers": 20, "epochs": 30},
     {"dense_layers": [512, 256, 128], "dropout": [0.4, 0.5, 0.6], "batch_size": 16, "lr": 0.00005, "unfreeze_layers": 30, "epochs": 40},
-    {"dense_layers": [256], "dropout": [0.4], "batch_size": 8, "lr": 0.0001, "unfreeze_layers": 15, "epochs": 25},
     {"dense_layers": [128, 64, 32], "dropout": [0.5, 0.6, 0.3], "batch_size": 4, "lr": 0.0001, "unfreeze_layers": 10, "epochs": 20},
     {"dense_layers": [64], "dropout": [0.3], "batch_size": 8, "lr": 0.0005, "unfreeze_layers": 5, "epochs": 15},
-    {"dense_layers": [128, 64], "dropout": [0.5, 0.3], "batch_size": 8, "lr": 0.0001, "unfreeze_layers": 15, "epochs": 20},
     {"dense_layers": [256, 128, 64], "dropout": [0.4, 0.5, 0.6], "batch_size": 16, "lr": 0.00005, "unfreeze_layers": 20, "epochs": 30},
-    {"dense_layers": [128], "dropout": [0.5], "batch_size": 4, "lr": 0.0001, "unfreeze_layers": 5, "epochs": 20},
+    
+    # Very simple architectures
+    {"dense_layers": [32], "dropout": [0.3], "batch_size": 16, "lr": 0.0001, "unfreeze_layers": 5, "epochs": 20},
+    {"dense_layers": [16], "dropout": [0.2], "batch_size": 8, "lr": 0.0005, "unfreeze_layers": 0, "epochs": 25},
+    
+    # Very complex architectures
+    {"dense_layers": [1024, 512, 256, 128], "dropout": [0.3, 0.4, 0.5, 0.6], "batch_size": 32, "lr": 0.00001, "unfreeze_layers": 30, "epochs": 50},
+    {"dense_layers": [512, 512, 256], "dropout": [0.5, 0.5, 0.5], "batch_size": 16, "lr": 0.00005, "unfreeze_layers": 25, "epochs": 35},
+    
+    # Larger batch sizes
+    {"dense_layers": [128, 64], "dropout": [0.4, 0.5], "batch_size": 64, "lr": 0.0001, "unfreeze_layers": 15, "epochs": 30},
+    {"dense_layers": [256], "dropout": [0.5], "batch_size": 128, "lr": 0.0001, "unfreeze_layers": 10, "epochs": 25},
+    
+    # Extreme learning rates
+    {"dense_layers": [128, 64], "dropout": [0.5, 0.5], "batch_size": 8, "lr": 0.001, "unfreeze_layers": 5, "epochs": 15},
+    {"dense_layers": [256, 128], "dropout": [0.4, 0.4], "batch_size": 32, "lr": 0.00001, "unfreeze_layers": 20, "epochs": 40},
+    
+    # No dropout
+    {"dense_layers": [128, 64], "dropout": [0.0, 0.0], "batch_size": 16, "lr": 0.0001, "unfreeze_layers": 10, "epochs": 25},
+    
+    
+    # Unique combinations
+    {"dense_layers": [128], "dropout": [0.7], "batch_size": 32, "lr": 0.0002, "unfreeze_layers": 8, "epochs": 20},
+    {"dense_layers": [64, 32, 16], "dropout": [0.3, 0.3, 0.3], "batch_size": 16, "lr": 0.0003, "unfreeze_layers": 12, "epochs": 25},
+    {"dense_layers": [512, 128], "dropout": [0.6, 0.4], "batch_size": 24, "lr": 0.00007, "unfreeze_layers": 15, "epochs": 35},
+    {"dense_layers": [384, 192, 96], "dropout": [0.5, 0.5, 0.5], "batch_size": 48, "lr": 0.00015, "unfreeze_layers": 18, "epochs": 30},
+    {"dense_layers": [192], "dropout": [0.4], "batch_size": 12, "lr": 0.00025, "unfreeze_layers": 6, "epochs": 22},
 ]
 
+
+# hyperparameter_tests = [
+    # Overfitting configurations
+    # {"dense_layers": [1024, 512, 256], "dropout": [0.1, 0.1, 0.1], "batch_size": 2, "lr": 0.001, "unfreeze_layers": 50, "epochs": 100},
+    # {"dense_layers": [512, 512], "dropout": [0, 0], "batch_size": 1, "lr": 0.0005, "unfreeze_layers": 100, "epochs": 80},
+    # {"dense_layers": [1024, 512, 256, 128], "dropout": [0.05, 0.05, 0.05, 0.05], "batch_size": 4, "lr": 0.0008, "unfreeze_layers": 40, "epochs": 60},
+    # {"dense_layers": [2048], "dropout": [0], "batch_size": 2, "lr": 0.001, "unfreeze_layers": 30, "epochs": 50},
+    # {"dense_layers": [768, 384, 192], "dropout": [0.1, 0.1, 0.1], "batch_size": 4, "lr": 0.0005, "unfreeze_layers": 80, "epochs": 70},
+    
+    # Generalization configurations
+# ]
 # Store results
 results = []
 
@@ -127,7 +176,7 @@ for i, params in enumerate(hyperparameter_tests, 1):
     # Load MobileNetV2 as base model
     base_model = EfficientNetB0(input_shape=(224, 224, 3), include_top=False, weights="imagenet")
 
-    # Freeze layers except the last `unfreeze_layers`
+    # Freeze layers except the last unfreeze_layers
     for layer in base_model.layers[:-params["unfreeze_layers"]]:
         layer.trainable = False
     for layer in base_model.layers[-params["unfreeze_layers"]:]:

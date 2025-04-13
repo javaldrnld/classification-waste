@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Load CSV
-df = pd.read_csv("../data/hyperparameter_result/efficientnetb0/hyperparameter_results.csv")
+df = pd.read_csv("/home/untitled/Documents/Coding_Repository/python_journey/Capstone/waste-classification/results/hyperparameter_result/mobilenetv2_13_25/hyperparameter_results.csv")
 
 # Find the best hyperparameter set (highest Test Accuracy)
 best_row = df.loc[df["Test Accuracy"].idxmax()]
@@ -23,7 +23,7 @@ metrics = ["Validation Accuracy", "Test Accuracy", "Validation Loss", "Test Loss
 values = [best_row["Validation Accuracy"], best_row["Test Accuracy"], best_row["Validation Loss"], best_row["Test Loss"]]
 
 # Define save directory
-save_dir = "/home/untitled/Documents/Coding Repository/python_journey/Capstone/waste-classification/references/efficientnetb0/"
+save_dir = "/home/untitled/Documents/Coding_Repository/python_journey/Capstone/waste-classification/references/mobilenetv2_13_25/"
 os.makedirs(save_dir, exist_ok=True)
 
 # Create figure

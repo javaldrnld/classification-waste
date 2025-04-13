@@ -8,7 +8,7 @@ import tensorflow as tf
 
 log_dir = "/home/untitled/Documents/Coding Repository/python_journey/Capstone/waste-classification/logs"
 os.makedirs(log_dir, exist_ok=True)
-log_file = os.path.join(log_dir, "image_inference.log")
+log_file = os.path.join(log_dir, "image_inferencev_legit.log")
 logging.basicConfig(
     filename=log_file,
     format="%(asctime)s - %(levelname)s - %(message)s",
@@ -101,7 +101,7 @@ def run_inference(img_dir, model_path):
             # Get the output index using the output details
             # print(model_path["index"])
             output_data= interpreter.get_tensor(output_details["index"])
-            # print(output_data[0][0])
+            print(output_data[0][0])
             class_label = "unacceptable" if output_data[0][0] <=0.50 else "pet_bottle"
             print(f"Prediction for {image_name}: {output_data[0][0]:.4f} -> {class_label}")
             logging.info(f"Prediction for {image_name}: {output_data[0][0]:.4f} -> {class_label}")
@@ -110,6 +110,6 @@ def run_inference(img_dir, model_path):
         logging.error(f"Error loading model: {e}")
     
 if __name__ == "__main__":
-    img_directory = "/home/untitled/Documents/Coding Repository/python_journey/Capstone/waste-classification/data/new_test"
-    model_directory = "/home/untitled/Documents/Coding Repository/python_journey/Capstone/waste-classification/models_train/mobilenetv2/mobilenetv2_best_test_3_standard.tflite"
+    img_directory = "/home/untitled/Documents/Coding_Repository/python_journey/Capstone/waste-classification/data/test_cases/lowlight"
+    model_directory = "/home/untitled/Documents/Coding_Repository/python_journey/Capstone/waste-classification/models_train/mobilenetv2_13_25_gen_5/mobilenetv2_best_test_5_standard.tflite"
     run_inference(img_directory, model_directory)
