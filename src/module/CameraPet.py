@@ -94,7 +94,9 @@ class CameraPet(CameraBase):
             
                 # Normalize to [-1, 1] for MobileNet/EfficientNet
                 if self.input_details["dtype"] == np.float32:
-                    image = image.astype(np.float32) / 127.5 - 1.0
+                    # image = image.astype(np.float32) / 127.5 - 1.0
+                    # Update to [0, 1] -> According to YOLO
+                    image = image.astype(np.float32) / 255.0
             else:
                 # For Keras .h5 model - resize to expected input shape (224, 224) by default
                 image = cv2.resize(image, (224, 224))
@@ -130,24 +132,30 @@ class CameraPet(CameraBase):
                 self.interpreter.invoke()
             
                 # Get output and calculate class
+                # Change since YOLO produce multiclass label
                 output_data = self.interpreter.get_tensor(self.output_details["index"])
-                score = output_data[0][0]
+                output = output_data[0]
+                pred_class = int(np.argmax(output_data))
+                confidence = output[pred_class]
+                # score = output_data[0][0]
 
             else:
                 output_data = self.model.predict(input_data)
                 score = float(output_data[0][0])
             
             # Determine class based on score threshold
-            class_label = "unacceptable" if score <= 0.50 else "pet_bottle"
+            # class_label = "unacceptable" if score <= 0.50 else "pet_bottle"
+            label_map = {0: "unacceptable", 1: "pet_bottle"}
+            class_label = label_map[pred_class]
             
             # Calculate total time
             end_time = time.perf_counter()
             inference_time = (end_time - start_time) * 1000  # Convert to ms
             
             logging.info(f"Inference time: {inference_time:.3f} ms")
-            logging.info(f"Prediction: {score:.4f} -> {class_label}")
+            logging.info(f"Prediction: {confidence:.4f} -> {class_label}")
             
-            return class_label, score, inference_time
+            return class_label, confidence, inference_time
             
         except Exception as e:
             logging.error(f"Error during inference: {e}")

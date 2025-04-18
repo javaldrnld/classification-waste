@@ -58,7 +58,7 @@ def preprocess_frame(frame, input_det):
         image = cv2.resize(image, (input_det["shape"][1], input_det["shape"][2]))
         # Normalize to [-1, 1]
         if input_det["dtype"] == np.float32:
-            image = image.astype(np.float32) / 127.5 - 1.0
+            image = image.astype(np.float32) / 255.0
             logging.info(f"Frame normalized to range: {image.min():.2f} to {image.max():.2f}")
 
         # Add batch dimension

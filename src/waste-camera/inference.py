@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 import tensorflow as tf
 
-log_dir = "/home/untitled/Documents/Coding Repository/python_journey/Capstone/waste-classification/logs"
+log_dir = "/home/untitled/Documents/Coding_Repository/python_journey/Capstone/waste-classification/logs"
 os.makedirs(log_dir, exist_ok=True)
 log_file = os.path.join(log_dir, "image_inferencev_legit.log")
 logging.basicConfig(
@@ -40,9 +40,8 @@ def setup_tensor(model_path):
         input_details = interpreter.get_input_details()[0]
         # Result at index: 183
         output_details = interpreter.get_output_details()[0]
-
         logging.info(f"Model loaded: {input_details['name']}")
-        logging.info(f"INPUT DETAILS: Index - {input_details['index']} | Shape - {input_details['shape']} | dtype - {input_details['dtype']}")
+        logging.info(f"INPUT DETAILS: Index - {input_details['index']} | Shape - {input_details['shape']} | dtype - {input_details['dtype']} | Quantization - {input_details["quantization"]}")
         logging.info(f"OUTPUT DETAILS: Index - {output_details['index']} | Shape - {output_details['shape']} | dtype - {output_details['dtype']}")
 
         return interpreter, input_details, output_details
@@ -64,9 +63,10 @@ def preprocess_image(image_path, input_det):
 
         # Normalize incase the model normalize
         if input_det["dtype"] == np.float32:
-            image = image.astype(np.float32) / 127.5 - 1.0 #255.0 # 255 since 0-255 color
+            # image = image.astype(np.float32) / 127.5 - 1.0 #255.0 # 255 since 0-255 color
+            image = image.astype(np.float32) / 255.0
             logging.info(f"Image {image_path} normalized to range: {image.min():.2f} to {image.max():.2f}")
-        
+            
         # Expand dimension to match
         image = np.expand_dims(image, axis=0)
         logging.info(f"Preprocessed image shape: {image.shape}")
@@ -100,16 +100,30 @@ def run_inference(img_dir, model_path):
 
             # Get the output index using the output details
             # print(model_path["index"])
+            # YOLO GIVES MULTICLASS
             output_data= interpreter.get_tensor(output_details["index"])
-            print(output_data[0][0])
-            class_label = "unacceptable" if output_data[0][0] <=0.50 else "pet_bottle"
-            print(f"Prediction for {image_name}: {output_data[0][0]:.4f} -> {class_label}")
-            logging.info(f"Prediction for {image_name}: {output_data[0][0]:.4f} -> {class_label}")
+            output = output_data[0]
+            pred_class = int(np.argmax(output_data))
+            print(f"Pred Class: {pred_class}")
+            label_map = {0: "unacceptable", 1: "pet_bottle"}
+            # class_label = "unacceptable" if output_data[0][0] <=0.50 else "pet_bottle"
+            class_label = label_map[pred_class]
+            confidence = output[pred_class]
+
+            # logging.info(f"Output data: {output_data}")
+            # print(f"Prediction for {image_name}: {output_data[0][0]:.4f} -> {class_label}")
+            # logging.info(f"Prediction for {image_name}: {output_data[0][0]:.4f} -> {class_label}")
+            # Properly log and print predicted class with actual confidence
+            logging.info(f"Output data: {output_data}")
+            print(f"Prediction for {image_name}: {confidence:.4f} -> {class_label}")
+            logging.info(f"Prediction for {image_name}: {confidence:.4f} -> {class_label}")
 
     except Exception as e:
         logging.error(f"Error loading model: {e}")
     
 if __name__ == "__main__":
-    img_directory = "/home/untitled/Documents/Coding_Repository/python_journey/Capstone/waste-classification/data/test_cases/lowlight"
-    model_directory = "/home/untitled/Documents/Coding_Repository/python_journey/Capstone/waste-classification/models_train/mobilenetv2_13_25_gen_5/mobilenetv2_best_test_5_standard.tflite"
+    model_directory = "/home/untitled/Documents/Coding_Repository/python_journey/Capstone/waste-classification/models_train/v8_18_20252_classification_n/weights/best_saved_model/best_float32.tflite"
+    #model_directory = "/home/untitled/Documents/Coding_Repository/python_journey/Capstone/waste-classification/models_train/best.tflite"
+    # model_directory = "/home/untitled/Documents/Coding_Repository/python_journey/Capstone/waste-classification/models_train/mobilenetv2_13_25_gen_5/mobilenetv2_best_test_5_standard.tflite"
+    img_directory = "/home/untitled/Documents/Coding_Repository/python_journey/Capstone/waste-classification/data/pet"
     run_inference(img_directory, model_directory)
